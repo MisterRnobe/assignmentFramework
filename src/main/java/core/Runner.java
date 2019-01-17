@@ -3,7 +3,9 @@ package core;
 import core.marker.Assignment;
 import core.marker.AssignmentTest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -68,16 +70,26 @@ public class Runner {
                     testMethods.forEach(m -> {
                         AssignmentTest assignmentTest = m.getAnnotation(AssignmentTest.class);
                         int score = 0;
+                        String error = null;
                         try {
                             m.invoke(testInstance);
                             score = assignmentTest.score();
-                        } catch (IllegalAccessException | InvocationTargetException exception) {
-                            //e.printStackTrace();
+                        } catch (InvocationTargetException exception) {
+                            exception.getTargetException().printStackTrace();
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            PrintStream printStream = new PrintStream(byteArrayOutputStream);
+                            exception.getTargetException().printStackTrace(printStream);
+                            error = byteArrayOutputStream.toString();
+                            printStream.close();
+
+                        } catch (IllegalAccessException e1) {
+                            e1.printStackTrace();
                         }
                         SubTestResult subTestResult = new SubTestResult();
                         subTestResult.setMaxScore(assignmentTest.score());
                         subTestResult.setSubTestName(assignmentTest.name());
                         subTestResult.setActualScore(score);
+                        subTestResult.setErrorMsg(error);
                         testResult.addSubTestResult(subTestResult);
                     });
                     return testResult;
@@ -95,7 +107,6 @@ public class Runner {
         try (Stream<Path> paths = Files.walk(Paths.get(path))) {
             assignmentClasses = paths
                     .filter(Files::isRegularFile)
-                    //.filter(f -> f.getFileName().endsWith(".class"))
                     .map(file -> {
                         try {
                             String fileName = file.getFileName().toString();

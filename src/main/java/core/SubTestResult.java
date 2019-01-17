@@ -4,6 +4,16 @@ public class SubTestResult {
     private String subTestName;
     private Integer maxScore;
     private Integer actualScore;
+    private String errorMsg;
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public SubTestResult setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
+        return this;
+    }
 
     public SubTestResult() {
     }
@@ -37,7 +47,8 @@ public class SubTestResult {
 
     @Override
     public String toString() {
-        return String.format("{\"%s\":\"%s\", \"%s\": %d, \"%s\": %d}", "subTestName", subTestName,
-                "maxScore", maxScore, "actualScore", actualScore);
+        return String.format("{\"%s\":\"%s\", \"%s\": %d, \"%s\": %d, \"%s\": \"%s\"}", "subTestName", subTestName,
+                "maxScore", maxScore, "actualScore", actualScore, "errorMsg", errorMsg);
+
     }
 }
